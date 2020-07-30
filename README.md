@@ -1,2 +1,2 @@
 # cse163-project
-CSE163 Project
+Exploring Covid-19’s Implications in the US
