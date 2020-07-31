@@ -3,6 +3,8 @@ import pandas as pd
 from io import StringIO
 
 
+# this is just a test push ignore file
+
 def download_csv(url: str) -> pd.DataFrame:
     with requests.Session() as s:
         r = s.get(url)
