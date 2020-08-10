@@ -4,7 +4,6 @@ from io import StringIO
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn import metrics
 
 
 def download_csv(url: str) -> pd.DataFrame:
@@ -55,21 +54,37 @@ def main():
     influenza_data_url = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'
 
     # us_states_data = download_csv(us_states_data_url)
-    us_states_data = pd.read_csv('us_states_data.csv')
+    us_states_df = pd.read_csv('us_states_data.csv')
 
-    print(us_states_data.to_string())
+    # print(us_states_data.to_string())
 
     # Generate graphs for question 2 (Minnesota)
-    # minnesota_mask = us_states_data['state'] == 'Minnesota'
-    # minnesota = us_states_data[minnesota_mask]
-    # minnesota.index = pd.to_datetime(minnesota['date'])
+    minnesota_mask = us_states_df['state'] == 'Minnesota'
+    minnesota = us_states_df[minnesota_mask]
+    minnesota.index = pd.to_datetime(minnesota['date'])
+    # print(minnesota)
     # minnesota['cases'].plot()
     # plt.title('Minnesota Cases')
     # plt.savefig('minnesota_cases.png')
 
     # # Training set
-    # pre_floyd = minnesota.loc[:'2020-05-27']  # Data up until May 25 to be used for training
+
+    # Replace dates with numeric counter for use in regression model training
+    minnesota = minnesota.assign(date=range(len(minnesota)))
+
+    pre_floyd = minnesota.loc[:'2020-05-25']
+    post_floyd = minnesota.loc['2020-05-26':]
+    pre_floyd_x, pre_floyd_y = pre_floyd['date'], pre_floyd['cases']
+    post_floyd_x, post_floyd_y = post_floyd['date'], post_floyd['cases']
+
+    model = LinearRegression()
+    model.fit(pre_floyd_x, pre_floyd_y)
+    pred = model.predict(post_floyd_x)
+    print(pred)
+
     # print(pre_floyd)
+    # print('=' * 50)
+    # print(post_floyd)
 
 
 if __name__ == '__main__':
