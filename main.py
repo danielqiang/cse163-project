@@ -31,19 +31,25 @@ def q2():
     pre_floyd_x, pre_floyd_y = pre_floyd[['date']], pre_floyd['cases']
 
     model = LinearRegression(fit_intercept=False)
+
     model.fit(pre_floyd_x, pre_floyd_y)
     pred = model.predict(minnesota_numeric[['date']])
-    pred_df = pd.DataFrame({'predictions': pred})
+    pred_df = pd.DataFrame({'linear predictions': pred})
     pred_df.index = minnesota.index
 
     # Polynomial Regression
+
+    # TODO: Use LinearRegression() instead of np.polyfit()
+    # model = LinearRegression()
+    # model.fit(pd.DataFrame({'date': range(1, len(minnesota))}), np.log(pred[1:]))
+    # y = np.exp(model.coef_) * np.exp(model.intercept_ * range(len(minnesota)))
 
     # pred[0] == 0, so omit it from the exponential fit
     # since ln(0) is undefined
     [intercept, slope] = np.polyfit(range(len(minnesota) - 1), np.log(pred[1:]), 1)
     y = np.exp(slope) * np.exp(intercept * range(len(minnesota)))
 
-    exp_df = pd.DataFrame({'predictions': y})
+    exp_df = pd.DataFrame({'polynomial predictions': y})
     exp_df.index = minnesota.index
 
     fig, ax = plt.subplots(1)
