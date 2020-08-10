@@ -48,8 +48,9 @@ def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
 
 
 def main():
+    world_data_url = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
     us_states_data_url = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
-    influenza_data_url = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'
+    influenza_data_url = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'  # USELESS
     us_states_data = download_csv(us_states_data_url)
     print(us_states_data.columns)
 
