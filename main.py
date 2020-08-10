@@ -4,7 +4,6 @@ from io import StringIO
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn import metrics
 
 
 def download_csv(url: str) -> pd.DataFrame:
@@ -86,7 +85,6 @@ def main():
     # print(pre_floyd)
     # print('=' * 50)
     # print(post_floyd)
-
 
 
 if __name__ == '__main__':
