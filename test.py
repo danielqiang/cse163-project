@@ -19,6 +19,7 @@ def download_csv(url: str) -> pd.DataFrame:
 def combine_state_data(state_col: str, data_col: str, data, mainland=True) -> gpd.GeoDataFrame:
     """
     Merges any data set with the US States geospatial data
+
     :param state_col: US States column to merge with
     :param data_col: data column to merge with
     :param data: DataFrame
@@ -27,7 +28,8 @@ def combine_state_data(state_col: str, data_col: str, data, mainland=True) -> gp
     """
     states_geo = gpd.read_file('map/states.json')
     if mainland:
-        states_geo = states_geo[(states_geo['NAME'] != 'Alaska') & (states_geo['NAME'] != 'Hawaii') & (states_geo['NAME'] != 'Puerto Rico')]
+        states_geo = states_geo[
+            (states_geo['NAME'] != 'Alaska') & (states_geo['NAME'] != 'Hawaii') & (states_geo['NAME'] != 'Puerto Rico')]
     merged_geo = states_geo.merge(data, left_on=state_col, right_on=data_col, how='inner')
     return merged_geo
 
@@ -36,6 +38,7 @@ def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
     """
     Convert time series data to current data (to plot on map) by updating all 'times' to latest time and removing
     old rows
+
     :param df: DataFrame
     :param latest: print latest date or not
     :param to_drop: column to delete duplicates of
@@ -50,22 +53,23 @@ def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
 def main():
     us_states_data_url = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
     influenza_data_url = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'
-    us_states_data = download_csv(us_states_data_url)
-    print(us_states_data.columns)
+
+    # us_states_data = download_csv(us_states_data_url)
+    us_states_data = pd.read_csv('us_states_data.csv')
+
+    print(us_states_data.to_string())
 
     # Generate graphs for question 2 (Minnesota)
-    minnesota_mask = us_states_data['state'] == 'Minnesota'
-    minnesota = us_states_data[minnesota_mask]
-    minnesota.index = pd.to_datetime(minnesota['date'])
-    minnesota_cases = minnesota['cases']
-    daily = minnesota_cases.resample('D').sum()
-    daily.plot()
-    plt.title('Minnesota Cases')
-    plt.savefig('minnesota_cases.png')
+    # minnesota_mask = us_states_data['state'] == 'Minnesota'
+    # minnesota = us_states_data[minnesota_mask]
+    # minnesota.index = pd.to_datetime(minnesota['date'])
+    # minnesota['cases'].plot()
+    # plt.title('Minnesota Cases')
+    # plt.savefig('minnesota_cases.png')
 
-    # Training set
-    pre_floyd = minnesota.loc[:'2020-05-27']  # Data up until May 25 to be used for training
-    print(pre_floyd)
+    # # Training set
+    # pre_floyd = minnesota.loc[:'2020-05-27']  # Data up until May 25 to be used for training
+    # print(pre_floyd)
 
 
 if __name__ == '__main__':
