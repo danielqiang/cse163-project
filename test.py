@@ -64,7 +64,8 @@ def main():
     plt.savefig('minnesota_cases.png')
 
     # Training set
-    pre_floyd = minnesota.loc[:'2020-05-27']  # Data up until May 25
+    pre_floyd = minnesota.loc[:'2020-05-27']  # Data up until May 25 to be used for training
+    print(pre_floyd)
 
 
 if __name__ == '__main__':
