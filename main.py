@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -32,16 +33,27 @@ def q2():
     model = LinearRegression(fit_intercept=False)
     model.fit(pre_floyd_x, pre_floyd_y)
     pred = model.predict(minnesota_numeric[['date']])
-
     pred_df = pd.DataFrame({'predictions': pred})
     pred_df.index = minnesota.index
+
+    # Polynomial Regression
+
+    # pred[0] == 0, so omit it from the exponential fit
+    # since ln(0) is undefined
+    [intercept, slope] = np.polyfit(range(len(minnesota) - 1), np.log(pred[1:]), 1)
+    y = np.exp(slope) * np.exp(intercept * range(len(minnesota)))
+
+    exp_df = pd.DataFrame({'predictions': y})
+    exp_df.index = minnesota.index
 
     fig, ax = plt.subplots(1)
     minnesota['cases'].plot(ax=ax, ylim=0)
     pred_df.plot(ax=ax, ylim=0)
+    exp_df.plot(ax=ax, ylim=0)
     ax.set_title('Minnesota Cases')
 
     fig.savefig('minnesota_cases.png')
+    fig.show()
 
 
 def q3():
