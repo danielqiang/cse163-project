@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# local files
+owid-covid-data.csv
+minnesota_cases.png
