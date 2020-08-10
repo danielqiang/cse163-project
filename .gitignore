@@ -131,3 +131,4 @@ dmypy.json
 # local files
 owid-covid-data.csv
 minnesota_cases.png
+/.idea
