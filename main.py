@@ -54,6 +54,7 @@ def q2():
     exp_df = pd.DataFrame({'polynomial predictions': y})
     exp_df.index = minnesota.index
 
+    # TODO: Use seaborn instead of matplotlib for plotting
     fig, ax = plt.subplots(1)
     minnesota['cases'].plot(ax=ax, ylim=0)
     pred_df.plot(ax=ax, ylim=0)
@@ -103,6 +104,8 @@ def q3():
     us_combined_data['new cases'] = us_combined_data['cases'].diff()
     us_combined_data['new recoveries'] = us_combined_data['recoveries'].diff()
     us_combined_data['new deaths'] = us_combined_data['deaths'].diff()
+    us_combined_data.index = pd.to_datetime(us_combined_data['date'])
+    us_combined_data.drop(['date'], axis=1, inplace=True)
 
     fig, ax = plt.subplots(1)
 
@@ -116,17 +119,20 @@ def q4():
 def q5():
     # us_state_data = download_csv(_US_STATES_DATA_URL)
     us_state_data = pd.read_csv(_US_STATES_DATA_URL)
+    us_state_data.index = pd.to_datetime(us_state_data['date'])
+    us_state_data.drop(['date'], axis=1, inplace=True)
     us_state_data['new cases'] = us_state_data['cases'].diff()
+    new_cases_mean = us_state_data.groupby('state')['new cases'].mean()
 
-
+    print(us_state_data.to_string())
 
 
 def main():
-    q1()
-    q2()
-    q3()
-    q4()
-    # q5()
+    # q1()
+    # q2()
+    # q3()
+    # q4()
+    q5()
 
 
 if __name__ == '__main__':
