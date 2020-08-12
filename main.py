@@ -11,9 +11,55 @@ _INFLUENZA_DATA_URL = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessT
 _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
 
 
+# TODO: Use seaborn instead of matplotlib for plotting
+
 
 def q1():
-    pass
+    flu_cases2019 = 35520883
+    flu_deaths2019 = 34157
+    # Compared with the 2017–2018 season , which was classified as high severity, the overall rates and burden of
+    # influenza were much lower during the 2018–2019 season
+
+    us_data = download_csv(_US_DATA_URL)
+
+    # Convert to Time Series
+    us_data.index = pd.to_datetime(us_data['date'])
+    us_data.drop(['date'], axis=1, inplace=True)
+
+    # Replace dates with numeric counter for use in regression model training
+    us_numeric = us_data.assign(date=range(len(us_data)))
+
+    # Linear Regression
+    x, y = us_numeric[['date']], us_numeric['cases']
+    model = LinearRegression(fit_intercept=False)
+    model.fit(x, y)
+    pred = model.predict(us_numeric[['date']])
+    pred_df = pd.DataFrame({'linear predictions': pred})
+    pred_df.index = us_data.index
+
+    # Polynomial Regression
+
+    # TODO: Use LinearRegression() instead of np.polyfit()
+    # model = LinearRegression()
+    # model.fit(pd.DataFrame({'date': range(1, len(us_data))}), np.log(pred[1:]))
+    # y = np.exp(model.coef_) * np.exp(model.intercept_ * range(len(us_data)))
+
+    # pred[0] == 0, so omit it from the exponential fit
+    # since ln(0) is undefined
+    [intercept, slope] = np.polyfit(range(len(us_data) - 1), np.log(pred[1:]), 1)
+    y = np.exp(slope) * np.exp(intercept * range(len(us_data)))
+    exp_df = pd.DataFrame({'polynomial predictions': y})
+    exp_df.index = us_data.index
+
+    # Plotting
+    fig, ax = plt.subplots(1)
+    us_data['cases'].plot(ax=ax, ylim=0)
+    pred_df.plot(ax=ax, ylim=0)
+    exp_df.plot(ax=ax, ylim=0)
+    ax.set_title('US Cases')
+    fig.savefig('US Cases')
+
+
 
 
 def q2():
@@ -54,7 +100,7 @@ def q2():
     exp_df = pd.DataFrame({'polynomial predictions': y})
     exp_df.index = minnesota.index
 
-    # TODO: Use seaborn instead of matplotlib for plotting
+    # Plotting
     fig, ax = plt.subplots(1)
     minnesota['cases'].plot(ax=ax, ylim=0)
     pred_df.plot(ax=ax, ylim=0)
@@ -102,23 +148,17 @@ def q3():
     us_combined_data = us_combined_data.drop(columns='Date')
     us_combined_data['recoveries'] = us_combined_data['recoveries'].astype('int64')
 
-    # THESE MIGHT BE USELESS
-    us_combined_data['new cases'] = us_combined_data['cases'].diff()
-    us_combined_data['new recoveries'] = us_combined_data['recoveries'].diff()
-    us_combined_data['new deaths'] = us_combined_data['deaths'].diff()
-
     us_combined_data.index = pd.to_datetime(us_combined_data['date'])
     us_combined_data.drop(['date'], axis=1, inplace=True)
 
-    us_combined_data['recovery rate'] = us_combined_data['new recoveries'] / us_combined_data['new deaths']
+    us_combined_data['recovery rate'] = us_combined_data['recoveries'] / us_combined_data['deaths']  # Should this be cases?
 
     fig, ax = plt.subplots(1)
     us_combined_data['recovery rate'].plot(ax=ax)
     ax.set_title('US Covid-19 Recovery Rate')
+    plt.ylabel('Recoveries / Deaths')
 
     fig.savefig('Recovery Rates.png')
-
-    print(us_combined_data.to_string())
 
 
 def q4():
@@ -131,13 +171,12 @@ def q5():
     us_state_data.index = pd.to_datetime(us_state_data['date'])
     us_state_data.drop(['date'], axis=1, inplace=True)
 
-    print()
 
 
 def main():
-    # q1()
+    q1()
     # q2()
-    q3()
+    # q3()
     # q4()
     # q5()
 
