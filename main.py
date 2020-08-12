@@ -9,6 +9,7 @@ _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/m
 _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
 _INFLUENZA_DATA_URL = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'
 _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
+_US_CASES_BY_AGE_URL = 'https://data.sfgov.org/api/views/sunc-2t3k/rows.csv?accessType=DOWNLOAD'
 
 
 # TODO: Use seaborn instead of matplotlib for plotting
@@ -58,8 +59,6 @@ def q1():
     exp_df.plot(ax=ax, ylim=0)
     ax.set_title('US Cases')
     fig.savefig('US Cases')
-
-
 
 
 def q2():
@@ -151,7 +150,8 @@ def q3():
     us_combined_data.index = pd.to_datetime(us_combined_data['date'])
     us_combined_data.drop(['date'], axis=1, inplace=True)
 
-    us_combined_data['recovery rate'] = us_combined_data['recoveries'] / us_combined_data['deaths']  # Should this be cases?
+    us_combined_data['recovery rate'] = us_combined_data['recoveries'] / us_combined_data[
+        'deaths']  # Should this be cases?
 
     fig, ax = plt.subplots(1)
     us_combined_data['recovery rate'].plot(ax=ax)
@@ -162,7 +162,33 @@ def q3():
 
 
 def q4():
-    pass
+    df = download_csv(_US_CASES_BY_AGE_URL)
+    # df = pd.read_csv('cases_by_age.csv')
+    df['Specimen Collection Date'] = df['Specimen Collection Date'].apply(pd.to_datetime)
+    df.drop(columns=['Unnamed: 0', 'New Confirmed Cases'], inplace=True, errors='ignore')
+
+    fig, ax = plt.subplots(1)
+
+    all_ages = df.groupby('Specimen Collection Date').sum()
+    all_ages.rename(columns={'Cumulative Confirmed Cases': 'Cum. Cases (All Ages)'},
+                    inplace=True)
+
+    age_groups = ['under 18', '18-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81+']
+    for age_group in age_groups:
+        mask = df['Age Group'] == age_group
+        label = f'Cum. Cases ({age_group})'
+
+        age_group_df = df[mask].merge(all_ages, on='Specimen Collection Date')
+        age_group_df.rename(columns={'Cumulative Confirmed Cases': label},
+                            inplace=True)
+        percentages = age_group_df[label] / age_group_df['Cum. Cases (All Ages)'] * 100
+        age_group_df[age_group] = percentages
+        age_group_df.plot(ax=ax, x='Specimen Collection Date', y=age_group)
+
+    ax.set_title('COVID-19 Cases (Percentage) by Age Group in San Francisco')
+    ax.set_ylabel('Percentage of Total COVID-19 Cases')
+    fig.savefig('COVID-19 Cases (Percentage) by Age Group in San Francisco.png')
+    plt.show()
 
 
 def q5():
@@ -172,12 +198,11 @@ def q5():
     us_state_data.drop(['date'], axis=1, inplace=True)
 
 
-
 def main():
-    q1()
+    # q1()
     # q2()
     # q3()
-    # q4()
+    q4()
     # q5()
 
 
