@@ -93,7 +93,7 @@ def q3():
 
     global_recoveries_data = pd.read_csv('time_series_covid19_recovered_global_narrow.csv')
 
-    # Reformatting/merging data
+    # Joining/reformatting data
     us_mask = global_recoveries_data['Country/Region'] == 'US'
     global_recoveries_data = global_recoveries_data[us_mask]
     global_recoveries_data = global_recoveries_data[['Value', 'Date']]
@@ -101,13 +101,22 @@ def q3():
     us_combined_data.rename(columns={'Value': 'recoveries'}, inplace=True)
     us_combined_data = us_combined_data.drop(columns='Date')
     us_combined_data['recoveries'] = us_combined_data['recoveries'].astype('int64')
+
+    # THESE MIGHT BE USELESS
     us_combined_data['new cases'] = us_combined_data['cases'].diff()
     us_combined_data['new recoveries'] = us_combined_data['recoveries'].diff()
     us_combined_data['new deaths'] = us_combined_data['deaths'].diff()
+
     us_combined_data.index = pd.to_datetime(us_combined_data['date'])
     us_combined_data.drop(['date'], axis=1, inplace=True)
 
+    us_combined_data['recovery rate'] = us_combined_data['new recoveries'] / us_combined_data['new deaths']
+
     fig, ax = plt.subplots(1)
+    us_combined_data['recovery rate'].plot(ax=ax)
+    ax.set_title('US Covid-19 Recovery Rate')
+
+    fig.savefig('Recovery Rates.png')
 
     print(us_combined_data.to_string())
 
@@ -121,18 +130,16 @@ def q5():
     us_state_data = pd.read_csv(_US_STATES_DATA_URL)
     us_state_data.index = pd.to_datetime(us_state_data['date'])
     us_state_data.drop(['date'], axis=1, inplace=True)
-    us_state_data['new cases'] = us_state_data['cases'].diff()
-    new_cases_mean = us_state_data.groupby('state')['new cases'].mean()
 
-    print(us_state_data.to_string())
+    print()
 
 
 def main():
     # q1()
     # q2()
-    # q3()
+    q3()
     # q4()
-    q5()
+    # q5()
 
 
 if __name__ == '__main__':
