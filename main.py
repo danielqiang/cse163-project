@@ -1,62 +1,51 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-
 from sklearn.linear_model import LinearRegression
 from helpers import download_csv
 
 _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
 _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
-_INFLUENZA_DATA_URL = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'
 _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
 _US_CASES_BY_AGE_URL = 'https://data.sfgov.org/api/views/sunc-2t3k/rows.csv?accessType=DOWNLOAD'
+_US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
 
 def q1():
+    import datetime
+
     flu_cases2019 = 35520883
     flu_deaths2019 = 34157
-    # Compared with the 2017–2018 season , which was classified as high severity, the overall rates and burden of
-    # influenza were much lower during the 2018–2019 season
+    flu_hospitalizations2019 = 490561
 
-    us_data = download_csv(_US_DATA_URL)
+    us_data = download_csv(_US_COMPREHENSIVE_URL)
 
     # Convert to Time Series
-    us_data.index = pd.to_datetime(us_data['date'])
+    us_data.index = pd.to_datetime(us_data['date'], format='%Y%m%d')
     us_data.drop(['date'], axis=1, inplace=True)
 
     # Replace dates with numeric counter for use in regression model training
     us_numeric = us_data.assign(date=range(len(us_data)))
 
     # Linear Regression
-    x, y = us_numeric[['date']], us_numeric['cases']
-    model = LinearRegression(fit_intercept=False)
+    us_numeric = us_numeric[us_numeric['hospitalizedCurrently'].notna()]
+    x, y = us_numeric[['date']], us_numeric['hospitalizedCumulative']
+    model = LinearRegression()
     model.fit(x, y)
     pred = model.predict(us_numeric[['date']])
     pred_df = pd.DataFrame({'linear predictions': pred})
-    pred_df.index = us_data.index
+    pred_df.index = us_numeric.index
 
-    # Polynomial Regression
-
-    # TODO: Use LinearRegression() instead of np.polyfit()
-    # model = LinearRegression()
-    # model.fit(pd.DataFrame({'date': range(1, len(us_data))}), np.log(pred[1:]))
-    # y = np.exp(model.coef_) * np.exp(model.intercept_ * range(len(us_data)))
-
-    # pred[0] == 0, so omit it from the exponential fit
-    # since ln(0) is undefined
-    [intercept, slope] = np.polyfit(range(len(us_data) - 1), np.log(pred[1:]), 1)
-    y = np.exp(slope) * np.exp(intercept * range(len(us_data)))
-    exp_df = pd.DataFrame({'polynomial predictions': y})
-    exp_df.index = us_data.index
+    print(us_numeric.to_string())
 
     # Plotting
     fig, ax = plt.subplots(1)
-    us_data['cases'].plot(ax=ax, ylim=0)
+    us_data['hospitalizedCumulative'].plot(ax=ax, ylim=0)
     pred_df.plot(ax=ax, ylim=0)
-    exp_df.plot(ax=ax, ylim=0)
-    ax.set_title('US Cases')
-    fig.savefig('US Cases')
+    ax.set_xlim([datetime.date(2020, 3, 1), datetime.date(2020, 12, 2)])
+    ax.set_ylim([0, 500000])
+    ax.set_title('US Hospitalizations')
+    fig.savefig('US Hospitalizations', bbox_inches='tight', ppad)
 
 
 def q2():
