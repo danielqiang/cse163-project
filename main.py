@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from helpers import download_csv
+import datetime
 
 _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
 _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
@@ -12,8 +13,6 @@ _US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
 
 def q1():
-    import datetime
-
     flu_cases2019 = 35520883
     flu_deaths2019 = 34157
     flu_hospitalizations2019 = 490561
@@ -36,14 +35,19 @@ def q1():
     pred_df = pd.DataFrame({'linear predictions': pred})
     pred_df.index = us_numeric.index
 
-    print(us_numeric.to_string())
+    # print(us_numeric.to_string())
 
     # Plotting
     fig, ax = plt.subplots(1)
-    us_data['hospitalizedCumulative'].plot(ax=ax, ylim=0)
-    pred_df.plot(ax=ax, ylim=0)
+    us_data['hospitalizedCumulative'].plot(ax=ax, ylim=0, label='Hospitalized')
+    pred_df.plot(ax=ax, ylim=0, label='Linear Predictions')
     ax.set_xlim([datetime.date(2020, 3, 1), datetime.date(2020, 12, 2)])
     ax.set_ylim([0, 500000])
+
+    # Disgusting hacky way to fix this line issue
+    print(model.coef_, model.intercept_)
+
+    ax.legend(loc='upper right')
     ax.set_title('US Hospitalizations')
     fig.savefig('US Hospitalizations', bbox_inches='tight', pad_inches=0.2)
 
@@ -88,12 +92,13 @@ def q2():
 
     # Plotting
     fig, ax = plt.subplots(1)
-    minnesota['cases'].plot(ax=ax, ylim=0)
-    pred_df.plot(ax=ax, ylim=0)
-    exp_df.plot(ax=ax, ylim=0)
+    minnesota['cases'].plot(ax=ax, ylim=0, label='Cases')
+    pred_df.plot(ax=ax, ylim=0, label='Linear Predictions')
+    exp_df.plot(ax=ax, ylim=0, label='Polynomial Predictions')
+    ax.legend(loc='upper left')
     ax.set_title('Minnesota Cases')
 
-    fig.savefig('minnesota_cases.png')
+    fig.savefig('minnesota_cases.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q3():
@@ -137,14 +142,17 @@ def q3():
     us_combined_data.index = pd.to_datetime(us_combined_data['date'])
     us_combined_data.drop(['date'], axis=1, inplace=True)
 
-    us_combined_data['recovery rate'] = us_combined_data['recoveries'] / us_combined_data[
-        'deaths']  # Should this be cases?
+    us_combined_data['recovery rate'] = (us_combined_data['recoveries'] / us_combined_data[
+        'deaths'])
+    us_combined_data = us_combined_data[us_combined_data['recovery rate'].notna()]
 
     fig, ax = plt.subplots(1)
     us_combined_data['recovery rate'].plot(ax=ax)
     ax.set_title('US Covid-19 Recovery Rate')
     plt.ylabel('Recoveries / Deaths')
+    ax.set_xlim([datetime.date(2020, 2, 29), us_combined_data.index.max()])
 
+    print(us_combined_data.to_string())
     fig.savefig('Recovery Rates.png', bbox_inches='tight', pad_inches=0.2)
 
 
@@ -206,15 +214,15 @@ def q5():
     ax.set_title('Largest reductions in COVID-19 cases per day (Top 5)')
     ax.set_ylabel('New Cases Per Day')
     fig.savefig('Largest reductions in COVID-19 cases per day (Top 5).png',
-                bbox_inches='tight', pad_inches=0.25)
+                bbox_inches='tight', pad_inches=0.2)
     plt.show()
 
 
 def main():
-    # q1()
-    # q2()
-    # q3()
-    q4()
+    q1()
+    q2()
+    q3()
+    # q4()
     # q5()
 
 
