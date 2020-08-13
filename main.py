@@ -45,7 +45,7 @@ def q1():
     ax.set_xlim([datetime.date(2020, 3, 1), datetime.date(2020, 12, 2)])
     ax.set_ylim([0, 500000])
     ax.set_title('US Hospitalizations')
-    fig.savefig('US Hospitalizations', bbox_inches='tight', ppad)
+    fig.savefig('US Hospitalizations', bbox_inches='tight', pad_inches=0.2)
 
 
 def q2():
@@ -145,7 +145,7 @@ def q3():
     ax.set_title('US Covid-19 Recovery Rate')
     plt.ylabel('Recoveries / Deaths')
 
-    fig.savefig('Recovery Rates.png')
+    fig.savefig('Recovery Rates.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q4():
@@ -174,8 +174,7 @@ def q4():
 
     ax.set_title('COVID-19 Cases (Percentage) by Age Group in San Francisco')
     ax.set_ylabel('Percentage of Total COVID-19 Cases')
-    fig.savefig('COVID-19 Cases (Percentage) by Age Group in San Francisco.png')
-    plt.show()
+    fig.savefig('COVID-19 Cases (Percentage) by Age Group in San Francisco.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q5():
