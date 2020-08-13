@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.linear_model import LinearRegression
 from helpers import download_csv
@@ -10,9 +11,6 @@ _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/u
 _INFLUENZA_DATA_URL = 'https://data.cdc.gov/api/views/ks3g-spdg/rows.csv?accessType=DOWNLOAD'
 _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
 _US_CASES_BY_AGE_URL = 'https://data.sfgov.org/api/views/sunc-2t3k/rows.csv?accessType=DOWNLOAD'
-
-
-# TODO: Use seaborn instead of matplotlib for plotting
 
 
 def q1():
@@ -199,10 +197,10 @@ def q5():
 
 
 def main():
-    # q1()
+    q1()
     # q2()
     # q3()
-    q4()
+    # q4()
     # q5()
 
 
