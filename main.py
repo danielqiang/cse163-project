@@ -10,7 +10,7 @@ _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
 _US_CASES_BY_AGE_URL = 'https://data.sfgov.org/api/views/sunc-2t3k/rows.csv?accessType=DOWNLOAD'
 _US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
-# comment
+
 def q1():
     import datetime
 
@@ -178,17 +178,43 @@ def q4():
 
 
 def q5():
-    # us_state_data = download_csv(_US_STATES_DATA_URL)
-    us_state_data = pd.read_csv(_US_STATES_DATA_URL)
-    us_state_data.index = pd.to_datetime(us_state_data['date'])
-    us_state_data.drop(['date'], axis=1, inplace=True)
+    # df = download_csv(_US_STATES_DATA_URL)
+    df = pd.read_csv(_US_STATES_DATA_URL)
+    df['date'] = df['date'].apply(pd.to_datetime)
+
+    fig, ax = plt.subplots(1)
+
+    case_reductions = {}
+    new_cases_by_state = {}
+    for state in df['state'].unique():
+        mask = df['state'] == state
+        state_df = df[mask].copy()
+        new_cases = df[mask]['cases'].diff()
+        # diff() gives NaN for first row
+        new_cases.iloc[0] = state_df['cases'].iloc[0]
+        state_df['new cases'] = new_cases.astype(int)
+
+        case_reductions[state] = state_df['new cases'].diff().min()
+        new_cases_by_state[state] = state_df
+
+    top_5 = sorted(case_reductions, key=case_reductions.get)[:5]
+    for state in top_5:
+        state_df = new_cases_by_state[state]
+        state_df.rename(columns={'new cases': state}, inplace=True)
+        state_df.plot(ax=ax, x='date', y=state, legend=True)
+
+    ax.set_title('Largest reductions in COVID-19 cases per day (Top 5)')
+    ax.set_ylabel('New Cases Per Day')
+    fig.savefig('Largest reductions in COVID-19 cases per day (Top 5).png',
+                bbox_inches='tight', pad_inches=0.25)
+    plt.show()
 
 
 def main():
-    q1()
+    # q1()
     # q2()
     # q3()
-    # q4()
+    q4()
     # q5()
 
 
