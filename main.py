@@ -1,9 +1,9 @@
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from helpers import download_csv, q2_state_plotter
 import datetime
+import requests
 
 _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
 _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
@@ -53,8 +53,14 @@ def q1():
 
 
 def q2():
-    us_states_df = pd.read_csv('us_states_data.csv')
-    # us_states_df = download_csv(_US_STATES_DATA_URL)
+    # FOR TESTING
+    # Tests question with local copy of the data
+    try:
+        us_states_df = download_csv(_US_STATES_DATA_URL)
+    except requests.exceptions.RequestException as e:  # This is the correct syntax
+        print(SystemExit(e))
+        print('Using local copy...')
+        us_states_df = pd.read_csv('us_states_data.csv')
 
     # Plotting
     fig, axs = plt.subplots(2)
@@ -66,7 +72,7 @@ def q2():
     q2_state_plotter(data=us_states_df, state_name='Minnesota', axs=axs, subplot=1)
 
     # Save
-    fig.tight_layout(pad=4.0)
+    fig.tight_layout(pad=2.0)
     fig.savefig('pre_floyd_cases.png', bbox_inches='tight', pad_inches=0.2)
 
 
@@ -94,10 +100,8 @@ def q3():
                              '-04-header=long&tagger-04-tag=%23geo%2Blon&header-row=1&url=https%3A%2F%2Fraw' \
                              '.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data' \
                              '%2Fcsse_covid_19_time_series%2Ftime_series_covid19_recovered_global.csv'
-    # global_recoveries_data = download_csv(_GLOBAL_RECOVERIES_URL)
+    global_recoveries_data = download_csv(_GLOBAL_RECOVERIES_URL)
     us_data = download_csv(_US_DATA_URL)
-
-    global_recoveries_data = pd.read_csv('time_series_covid19_recovered_global_narrow.csv')
 
     # Joining/reformatting data
     us_mask = global_recoveries_data['Country/Region'] == 'US'
@@ -127,7 +131,6 @@ def q3():
 
 def q4():
     df = download_csv(_US_CASES_BY_AGE_URL)
-    # df = pd.read_csv('cases_by_age.csv')
     df['Specimen Collection Date'] = df['Specimen Collection Date'].apply(pd.to_datetime)
     df.drop(columns=['Unnamed: 0', 'New Confirmed Cases'], inplace=True, errors='ignore')
 
@@ -151,12 +154,11 @@ def q4():
 
     ax.set_title('COVID-19 Cases (Percentage) by Age Group in San Francisco')
     ax.set_ylabel('Percentage of Total COVID-19 Cases')
-    fig.savefig('COVID-19 Cases (Percentage) by Age Group in San Francisco.png', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('cases_by_age_sf', bbox_inches='tight', pad_inches=0.2)
 
 
 def q5():
-    # df = download_csv(_US_STATES_DATA_URL)
-    df = pd.read_csv(_US_STATES_DATA_URL)
+    df = download_csv(_US_STATES_DATA_URL)
     df['date'] = df['date'].apply(pd.to_datetime)
 
     fig, ax = plt.subplots(1)
@@ -182,9 +184,8 @@ def q5():
 
     ax.set_title('Largest reductions in COVID-19 cases per day (Top 5)')
     ax.set_ylabel('New Cases Per Day')
-    fig.savefig('Largest reductions in COVID-19 cases per day (Top 5).png',
+    fig.savefig('largest_reductions.png',
                 bbox_inches='tight', pad_inches=0.2)
-    plt.show()
 
 
 def main():
