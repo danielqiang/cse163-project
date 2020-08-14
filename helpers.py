@@ -1,8 +1,9 @@
 import pandas as pd
 import geopandas as gpd
-
+from sklearn.linear_model import LinearRegression
 from io import StringIO
-
+import numpy as np
+import matplotlib as plt
 
 __all__ = ['download_csv', 'combine_state_data', 'update_geo']
 
@@ -48,3 +49,53 @@ def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
         print(df['date'].max())
     df = df.sort_values('date').drop_duplicates(to_drop, keep='last')
     return df
+
+
+def q2_state_plotter(data: pd.DataFrame, state_name: str, axs, subplot: int):
+    """
+
+    :param subplot:
+    :param fig:
+    :param axs:
+    :param data:
+    :param state_name:
+    :return:
+    """
+    # DataFrame for Minnesota cases; convert to Time Series
+    mask = data['state'] == state_name
+    state = data[mask]
+    state.index = pd.to_datetime(state['date'])
+
+    # Replace dates with numeric counter for use in regression model training
+    state_numeric = state.assign(date=range(len(state)))
+
+    # Linear Regression
+    pre_floyd = state_numeric.loc[:'2020-05-25']
+    pre_floyd_x, pre_floyd_y = pre_floyd[['date']], pre_floyd['cases']
+
+    model = LinearRegression(fit_intercept=False)
+
+    model.fit(pre_floyd_x, pre_floyd_y)
+    pred = model.predict(state_numeric[['date']])
+    pred_df = pd.DataFrame({'linear predictions': pred})
+    pred_df.index = state.index
+
+    # Polynomial Regression
+
+    # TODO: Use LinearRegression() instead of np.polyfit()
+    # model = LinearRegression()
+    # model.fit(pd.DataFrame({'date': range(1, len(minnesota))}), np.log(pred[1:]))
+    # y = np.exp(model.coef_) * np.exp(model.intercept_ * range(len(minnesota)))
+
+    # pred[0] == 0, so omit it from the exponential fit
+    # since ln(0) is undefined
+    [intercept, slope] = np.polyfit(range(len(state) - 1), np.log(pred[1:]), 1)
+    y = np.exp(slope) * np.exp(intercept * range(len(state)))
+
+    exp_df = pd.DataFrame({'polynomial predictions': y})
+    exp_df.index = state.index
+
+    state['cases'].plot(ax=axs[subplot], ylim=0, label='Cases')
+    pred_df.plot(ax=axs[subplot], ylim=0, label='Linear Predictions')
+    exp_df.plot(ax=axs[subplot], ylim=0, label='Polynomial Predictions')
+    axs[subplot].set_title(state_name + ' Cases')

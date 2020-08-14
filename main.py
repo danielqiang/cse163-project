@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from helpers import download_csv
+from helpers import download_csv, q2_state_plotter
 import datetime
 
 _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
@@ -49,56 +49,25 @@ def q1():
 
     ax.legend(loc='upper right')
     ax.set_title('US Hospitalizations')
-    fig.savefig('US Hospitalizations', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('us_hospitalizations', bbox_inches='tight', pad_inches=0.2)
 
 
 def q2():
     us_states_df = pd.read_csv('us_states_data.csv')
     # us_states_df = download_csv(_US_STATES_DATA_URL)
 
-    # DataFrame for Minnesota cases; convert to Time Series
-    minnesota_mask = us_states_df['state'] == 'Minnesota'
-    minnesota = us_states_df[minnesota_mask]
-    minnesota.index = pd.to_datetime(minnesota['date'])
-
-    # Replace dates with numeric counter for use in regression model training
-    minnesota_numeric = minnesota.assign(date=range(len(minnesota)))
-
-    # Linear Regression
-    pre_floyd = minnesota_numeric.loc[:'2020-05-25']
-    pre_floyd_x, pre_floyd_y = pre_floyd[['date']], pre_floyd['cases']
-
-    model = LinearRegression(fit_intercept=False)
-
-    model.fit(pre_floyd_x, pre_floyd_y)
-    pred = model.predict(minnesota_numeric[['date']])
-    pred_df = pd.DataFrame({'linear predictions': pred})
-    pred_df.index = minnesota.index
-
-    # Polynomial Regression
-
-    # TODO: Use LinearRegression() instead of np.polyfit()
-    # model = LinearRegression()
-    # model.fit(pd.DataFrame({'date': range(1, len(minnesota))}), np.log(pred[1:]))
-    # y = np.exp(model.coef_) * np.exp(model.intercept_ * range(len(minnesota)))
-
-    # pred[0] == 0, so omit it from the exponential fit
-    # since ln(0) is undefined
-    [intercept, slope] = np.polyfit(range(len(minnesota) - 1), np.log(pred[1:]), 1)
-    y = np.exp(slope) * np.exp(intercept * range(len(minnesota)))
-
-    exp_df = pd.DataFrame({'polynomial predictions': y})
-    exp_df.index = minnesota.index
-
     # Plotting
-    fig, ax = plt.subplots(1)
-    minnesota['cases'].plot(ax=ax, ylim=0, label='Cases')
-    pred_df.plot(ax=ax, ylim=0, label='Linear Predictions')
-    exp_df.plot(ax=ax, ylim=0, label='Polynomial Predictions')
-    ax.legend(loc='upper left')
-    ax.set_title('Minnesota Cases')
+    fig, axs = plt.subplots(2)
 
-    fig.savefig('minnesota_cases.png', bbox_inches='tight', pad_inches=0.2)
+    # Washington
+    q2_state_plotter(data=us_states_df, state_name='Washington', axs=axs, subplot=0)
+
+    # Minnesota
+    q2_state_plotter(data=us_states_df, state_name='Minnesota', axs=axs, subplot=1)
+
+    # Save
+    fig.tight_layout(pad=4.0)
+    fig.savefig('pre_floyd_cases.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q3():
@@ -153,7 +122,7 @@ def q3():
     ax.set_xlim([datetime.date(2020, 2, 29), us_combined_data.index.max()])
 
     print(us_combined_data.to_string())
-    fig.savefig('Recovery Rates.png', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('recovery_rates.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q4():
@@ -222,8 +191,8 @@ def main():
     q1()
     q2()
     q3()
-    # q4()
-    # q5()
+    q4()
+    q5()
 
 
 if __name__ == '__main__':
