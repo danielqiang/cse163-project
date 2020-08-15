@@ -5,6 +5,7 @@ from helpers import download_csv, q2_state_plotter
 import datetime
 import requests
 
+
 _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
 _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
 _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
@@ -13,6 +14,7 @@ _US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
 
 def q1():
+    import numpy as np
     flu_cases2019 = 35520883
     flu_deaths2019 = 34157
     flu_hospitalizations2019 = 490561
@@ -34,18 +36,20 @@ def q1():
     pred = model.predict(us_numeric[['date']])
     pred_df = pd.DataFrame({'linear predictions': pred})
     pred_df.index = us_numeric.index
-
-    # print(us_numeric.to_string())
+    us_data['linear predictions'] = pred_df
 
     # Plotting
     fig, ax = plt.subplots(1)
-    us_data['hospitalizedCumulative'].plot(ax=ax, ylim=0, label='Hospitalized')
-    pred_df.plot(ax=ax, ylim=0, label='Linear Predictions')
-    ax.set_xlim([datetime.date(2020, 3, 1), datetime.date(2020, 12, 2)])
+    us_numeric['hospitalizedCumulative'].plot(ax=ax, ylim=0, label='Hospitalized')
+    us_data['linear predictions'].plot(ax=ax, ylim=0, label='Linear Predictions')
+    ax.set_xlim([datetime.date(2020, 3, 16), datetime.date(2020, 12, 2)])
     ax.set_ylim([0, 500000])
 
+    print(us_data.to_string())
     # Disgusting hacky way to fix this line issue
-    print(model.coef_, model.intercept_)
+    x = np.array(ax.get_xlim())
+    y = (model.intercept_ * x) + model.coef_
+    ax.plot(x, y, '-')
 
     ax.legend(loc='upper right')
     ax.set_title('US Hospitalizations')
@@ -190,10 +194,10 @@ def q5():
 
 def main():
     q1()
-    q2()
-    q3()
-    q4()
-    q5()
+    # q2()
+    # q3()
+    # q4()
+    # q5()
 
 
 if __name__ == '__main__':
