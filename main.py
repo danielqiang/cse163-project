@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from helpers import download_csv, q2_state_plotter
+from helpers import download_csv, q2_state_plotter, combine_state_data, update_geo
 import datetime
 import requests
 
@@ -15,8 +15,6 @@ _US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
 def q1():
     import numpy as np
-    flu_cases2019 = 35520883
-    flu_deaths2019 = 34157
     flu_hospitalizations2019 = 490561
 
     us_data = download_csv(_US_COMPREHENSIVE_URL)
@@ -36,7 +34,7 @@ def q1():
     pred = model.predict(us_numeric[['date']])
     pred_df = pd.DataFrame({'linear predictions': pred})
     pred_df.index = us_numeric.index
-    us_data['linear predictions'] = pred_df
+    us_data['linear predictions'], us_numeric['linear predictions'] = pred_df, pred_df
 
     # Plotting
     fig, ax = plt.subplots(1)
@@ -45,15 +43,15 @@ def q1():
     ax.set_xlim([datetime.date(2020, 3, 16), datetime.date(2020, 12, 2)])
     ax.set_ylim([0, 500000])
 
-    print(us_data.to_string())
-    # Disgusting hacky way to fix this line issue
+    print(us_numeric.to_string())
+    # Creates regression line on graph
     x = np.array(ax.get_xlim())
-    y = (model.intercept_ * x) + model.coef_
+    y = 2207.32667 * x
     ax.plot(x, y, '-')
 
     ax.legend(loc='upper right')
     ax.set_title('US Hospitalizations')
-    fig.savefig('us_hospitalizations', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('results/us_hospitalizations', bbox_inches='tight', pad_inches=0.2)
 
 
 def q2():
@@ -67,7 +65,7 @@ def q2():
         us_states_df = pd.read_csv('us_states_data.csv')
 
     # Plotting
-    fig, axs = plt.subplots(2)
+    fig, axs = plt.subplots(2, figsize=(15, 8))
 
     # Washington
     q2_state_plotter(data=us_states_df, state_name='Washington', axs=axs, subplot=0)
@@ -77,7 +75,7 @@ def q2():
 
     # Save
     fig.tight_layout(pad=2.0)
-    fig.savefig('pre_floyd_cases.png', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('results/floyd_model_cases.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q3():
@@ -127,10 +125,10 @@ def q3():
     us_combined_data['recovery rate'].plot(ax=ax)
     ax.set_title('US Covid-19 Recovery Rate')
     plt.ylabel('Recoveries / Deaths')
+    ax.legend(loc='upper left')
     ax.set_xlim([datetime.date(2020, 2, 29), us_combined_data.index.max()])
 
-    print(us_combined_data.to_string())
-    fig.savefig('recovery_rates.png', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('results/recovery_rates.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q4():
@@ -158,7 +156,7 @@ def q4():
 
     ax.set_title('COVID-19 Cases (Percentage) by Age Group in San Francisco')
     ax.set_ylabel('Percentage of Total COVID-19 Cases')
-    fig.savefig('cases_by_age_sf', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('results/cases_by_age_sf', bbox_inches='tight', pad_inches=0.2)
 
 
 def q5():
@@ -188,16 +186,30 @@ def q5():
 
     ax.set_title('Largest reductions in COVID-19 cases per day (Top 5)')
     ax.set_ylabel('New Cases Per Day')
-    fig.savefig('largest_reductions.png',
+    fig.savefig('results/largest_reductions.png',
                 bbox_inches='tight', pad_inches=0.2)
+
+    # Plotting on map
+    fig2, ax2 = plt.subplots(1)
+    case_reductions_mapping = {k: abs(v) for k, v in case_reductions.items()}
+    geo_states = combine_state_data(state_col='NAME', data_col='state', data=df)
+    geo_states = update_geo(geo_states, to_drop='state')
+    geo_states['date'] = pd.to_datetime(geo_states['date'])
+    for state, reductions in case_reductions_mapping.items():
+        geo_states.loc[geo_states['state'] == state, 'reductions'] = reductions
+    geo_states.plot(column='reductions', linewidth=0.5, edgecolor='black', cmap='Reds', legend=True,
+                    legend_kwds={'label': "Reductions", 'orientation': "horizontal"}, ax=ax2)
+    ax2.set_title('Largest Covid-19 Case Reductions in One Day as of: ' + str(geo_states['date'].max().date()))
+    ax2.axis('off')
+    fig2.savefig('results/reductions_map.png', bbox_inches='tight')
 
 
 def main():
     q1()
-    # q2()
-    # q3()
-    # q4()
-    # q5()
+    q2()
+    q3()
+    q4()
+    q5()
 
 
 if __name__ == '__main__':

@@ -8,6 +8,11 @@ __all__ = ['download_csv', 'combine_state_data', 'update_geo', 'q2_state_plotter
 
 
 def download_csv(url: str) -> pd.DataFrame:
+    """
+
+    :param url: URL of a .csv download
+    :return: DataFrame based on url .csv
+    """
     import requests
 
     with requests.Session() as s:
@@ -38,10 +43,9 @@ def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
     """
     Convert time series data to current data (to plot on map) by updating all 'times' to latest time and removing
     old rows
-
+    :param to_drop: column to update
     :param df: DataFrame
     :param latest: print latest date or not
-    :param to_drop: column to delete duplicates of
     """
     if latest:
         df['date'] = pd.to_datetime(df['date'])
@@ -52,12 +56,11 @@ def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
 
 def q2_state_plotter(data: pd.DataFrame, state_name: str, axs, subplot: int):
     """
-
-    :param subplot:
-    :param fig:
-    :param axs:
-    :param data:
-    :param state_name:
+    Plots cases over time with both a linear and polynomial model trained with pre-May 25 case data
+    :param subplot: indicates which subplot of the given axis to plot over
+    :param axs: axis on which to plot
+    :param data: DataFrame of relevant data
+    :param state_name: state to plot
     :return:
     """
     # DataFrame for Minnesota cases; convert to Time Series
