@@ -9,7 +9,7 @@ __all__ = ['download_csv', 'combine_state_data', 'update_geo', 'q2_state_plotter
 
 def download_csv(url: str) -> pd.DataFrame:
     """
-
+    Downloads .csv file from the given link and converts it to a pandas DataFrame
     :param url: URL of a .csv download
     :return: DataFrame based on url .csv
     """
@@ -83,11 +83,6 @@ def q2_state_plotter(data: pd.DataFrame, state_name: str, axs, subplot: int):
     pred_df.index = state.index
 
     # Polynomial Regression
-
-    # TODO: Use LinearRegression() instead of np.polyfit()
-    # model = LinearRegression()
-    # model.fit(pd.DataFrame({'date': range(1, len(minnesota))}), np.log(pred[1:]))
-    # y = np.exp(model.coef_) * np.exp(model.intercept_ * range(len(minnesota)))
 
     # pred[0] == 0, so omit it from the exponential fit
     # since ln(0) is undefined

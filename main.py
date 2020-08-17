@@ -38,7 +38,7 @@ def q1():
 
     # Plotting
     fig, ax = plt.subplots(1)
-    us_numeric['hospitalizedCumulative'].plot(ax=ax, ylim=0, label='Hospitalized')
+    us_data['hospitalizedCumulative'].plot(ax=ax, ylim=0, label='Hospitalized')
     us_data['linear predictions'].plot(ax=ax, ylim=0, label='Linear Predictions')
     ax.set_xlim([datetime.date(2020, 3, 16), datetime.date(2020, 12, 2)])
     ax.set_ylim([0, 500000])
@@ -48,6 +48,7 @@ def q1():
     x = np.array(ax.get_xlim())
     y = 2207.32667 * x
     ax.plot(x, y, '-')
+    ax.axvline(x=30)
 
     ax.legend(loc='upper right')
     ax.set_title('US Hospitalizations')
@@ -206,10 +207,10 @@ def q5():
 
 def main():
     q1()
-    q2()
-    q3()
-    q4()
-    q5()
+    # q2()
+    # q3()
+    # q4()
+    # q5()
 
 
 if __name__ == '__main__':
