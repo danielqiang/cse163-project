@@ -27,7 +27,7 @@ def q1():
     us_numeric = us_data.assign(date=range(len(us_data)))
 
     # Linear Regression
-    us_numeric = us_numeric[us_numeric['hospitalizedCurrently'].notna()]
+    us_numeric = us_numeric[us_numeric['hospitalizedCumulative'].notna()]
     x, y = us_numeric[['date']], us_numeric['hospitalizedCumulative']
     model = LinearRegression()
     model.fit(x, y)
@@ -39,18 +39,21 @@ def q1():
     # Plotting
     fig, ax = plt.subplots(1)
     us_data['hospitalizedCumulative'].plot(ax=ax, ylim=0, label='Hospitalized')
-    us_data['linear predictions'].plot(ax=ax, ylim=0, label='Linear Predictions')
-    ax.set_xlim([datetime.date(2020, 3, 16), datetime.date(2020, 12, 2)])
-    ax.set_ylim([0, 500000])
+    # us_data['linear predictions'].plot(ax=ax, ylim=0, label='Linear Predictions')  # Regression line for testing
+    ax.set_xlim([datetime.date(2020, 3, 1), datetime.date(2020, 12, 2)])
+    ax.set_ylim([0, 600000])
 
-    print(us_numeric.to_string())
+    print(us_numeric[['date', 'linear predictions']].to_string())
     # Creates regression line on graph
-    x = np.array(ax.get_xlim())
-    y = 2207.32667 * x
-    ax.plot(x, y, '-')
-    ax.axvline(x=30)
+    ax.axhline(y=490561, color='r', linestyle='-', label='2019 Flu Hospitalizations')
+    ax.axvline(x=18552, color='r', linestyle='-')
 
-    ax.legend(loc='upper right')
+    # Plotting regression line with point-slope form
+    x = np.linspace(0, 19000, 50)
+    y = 2210.45379 * (x - 18325) - 11633.431643
+    ax.plot(x, y, label='Linear Predictions')
+
+    ax.legend(loc='upper left')
     ax.set_title('US Hospitalizations')
     fig.savefig('results/us_hospitalizations', bbox_inches='tight', pad_inches=0.2)
 
