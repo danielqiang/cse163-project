@@ -5,7 +5,6 @@ from helpers import download_csv, q2_state_plotter, combine_state_data, update_g
 import datetime
 import requests
 
-
 _US_STATES_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
 _US_DATA_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
 _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
@@ -45,7 +44,7 @@ def q1():
 
     print(us_numeric[['date', 'linear predictions']].to_string())
     # Creates regression line on graph
-    ax.axhline(y=490561, color='r', linestyle='-', label='2019 Flu Hospitalizations')
+    ax.axhline(y=flu_hospitalizations2019, color='r', linestyle='-', label='2019 Flu Hospitalizations')
     ax.axvline(x=18552, color='r', linestyle='-')
 
     # Plotting regression line with point-slope form
@@ -63,7 +62,7 @@ def q2():
     # Tests question with local copy of the data
     try:
         us_states_df = download_csv(_US_STATES_DATA_URL)
-    except requests.exceptions.RequestException as e:  # This is the correct syntax
+    except requests.exceptions.RequestException as e:
         print(SystemExit(e))
         print('Using local copy...')
         us_states_df = pd.read_csv('us_states_data.csv')

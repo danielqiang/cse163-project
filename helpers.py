@@ -39,7 +39,7 @@ def combine_state_data(state_col: str, data_col: str, data: pd.DataFrame, mainla
     return merged_geo
 
 
-def update_geo(df: gpd.GeoDataFrame, to_drop: pd.Series, latest=False):
+def update_geo(df: gpd.GeoDataFrame, to_drop: str, latest=False):
     """
     Convert time series data to current data (to plot on map) by updating all 'times' to latest time and removing
     old rows
