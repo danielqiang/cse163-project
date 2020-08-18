@@ -159,7 +159,7 @@ def q4():
 
     ax.set_title('COVID-19 Cases (Percentage) by Age Group in San Francisco')
     ax.set_ylabel('Percentage of Total COVID-19 Cases')
-    fig.savefig('results/cases_by_age_sf', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('results/cases_by_age_sf.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q5():
