@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from helpers import download_csv, q2_state_plotter, combine_state_data, update_geo
+from helpers import download_convert_csv, q2_state_plotter, combine_state_data, update_geo
 import datetime
 import requests
 
@@ -11,12 +11,11 @@ _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
 _US_CASES_BY_AGE_URL = 'https://data.sfgov.org/api/views/sunc-2t3k/rows.csv?accessType=DOWNLOAD'
 _US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
-
 def q1():
     import numpy as np
     flu_hospitalizations2019 = 490561
 
-    us_data = download_csv(_US_COMPREHENSIVE_URL)
+    us_data = download_convert_csv(_US_COMPREHENSIVE_URL)
 
     # Convert to Time Series
     us_data.index = pd.to_datetime(us_data['date'], format='%Y%m%d')
@@ -61,7 +60,7 @@ def q2():
     # FOR TESTING
     # Tests question with local copy of the data
     try:
-        us_states_df = download_csv(_US_STATES_DATA_URL)
+        us_states_df = download_convert_csv(_US_STATES_DATA_URL)
     except requests.exceptions.RequestException as e:
         print(SystemExit(e))
         print('Using local copy...')
@@ -105,8 +104,8 @@ def q3():
                              '-04-header=long&tagger-04-tag=%23geo%2Blon&header-row=1&url=https%3A%2F%2Fraw' \
                              '.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data' \
                              '%2Fcsse_covid_19_time_series%2Ftime_series_covid19_recovered_global.csv'
-    global_recoveries_data = download_csv(_GLOBAL_RECOVERIES_URL)
-    us_data = download_csv(_US_DATA_URL)
+    global_recoveries_data = download_convert_csv(_GLOBAL_RECOVERIES_URL)
+    us_data = download_convert_csv(_US_DATA_URL)
 
     # Joining/reformatting data
     us_mask = global_recoveries_data['Country/Region'] == 'US'
@@ -135,7 +134,7 @@ def q3():
 
 
 def q4():
-    df = download_csv(_US_CASES_BY_AGE_URL)
+    df = download_convert_csv(_US_CASES_BY_AGE_URL)
     df['Specimen Collection Date'] = df['Specimen Collection Date'].apply(pd.to_datetime)
     df.drop(columns=['Unnamed: 0', 'New Confirmed Cases'], inplace=True, errors='ignore')
 
@@ -163,7 +162,7 @@ def q4():
 
 
 def q5():
-    df = download_csv(_US_STATES_DATA_URL)
+    df = download_convert_csv(_US_STATES_DATA_URL)
     df['date'] = df['date'].apply(pd.to_datetime)
 
     fig, ax = plt.subplots(1)
