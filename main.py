@@ -156,9 +156,9 @@ def q4():
         age_group_df[age_group] = percentages
         age_group_df.plot(ax=ax, x='Specimen Collection Date', y=age_group)
 
-    ax.set_title('COVID-19 Cases (Percentage) by Age Group in San Francisco')
+    ax.set_title('COVID-19 Cases (Percentage) by Age Group in the US')
     ax.set_ylabel('Percentage of Total COVID-19 Cases')
-    fig.savefig('results/cases_by_age_sf.png', bbox_inches='tight', pad_inches=0.2)
+    fig.savefig('results/cases_by_age.png', bbox_inches='tight', pad_inches=0.2)
 
 
 def q5():
