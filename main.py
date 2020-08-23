@@ -11,6 +11,7 @@ _WORLD_DATA_URL = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
 _US_CASES_BY_AGE_URL = 'https://data.sfgov.org/api/views/sunc-2t3k/rows.csv?accessType=DOWNLOAD'
 _US_COMPREHENSIVE_URL = 'https://covidtracking.com/api/v1/us/daily.csv'
 
+
 def q1():
     import numpy as np
     flu_hospitalizations2019 = 490561
